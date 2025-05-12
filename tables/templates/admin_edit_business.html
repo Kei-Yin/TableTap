@@ -1,0 +1,10 @@
+{% extends 'base_admin.html' %}
+{% block title %}Edit Business{% endblock %}
+{% block content %}
+<h4>Edit Business</h4>
+<form method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-success">Save Changes</button>
+</form>
+{% endblock %}

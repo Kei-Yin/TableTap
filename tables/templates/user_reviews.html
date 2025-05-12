@@ -1,0 +1,49 @@
+{% extends 'base_customer.html' %}
+{% block title %}My Reviews{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h4 class="fw-bold mb-3">📝 My Reviews</h4>
+
+  {% if reviews %}
+    {% for review in reviews %}
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="mb-1"><strong>Business:</strong> {{ review.business.name }}</h6>
+          <p><strong>Rating:</strong> {{ review.rating }} ⭐</p>
+          <p><strong>Comment:</strong> {{ review.comment }}</p>
+          <p class="text-muted mb-0">Posted on {{ review.created_at|date:"Y-m-d H:i" }}</p>
+        </div>
+      </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if reviews.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ reviews.previous_page_number }}">Previous</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Previous</span></li>
+        {% endif %}
+
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ reviews.number }} of {{ reviews.paginator.num_pages }}</span>
+        </li>
+
+        {% if reviews.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ reviews.next_page_number }}">Next</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Next</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+
+  {% else %}
+    <p class="text-muted">You haven't written any reviews yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

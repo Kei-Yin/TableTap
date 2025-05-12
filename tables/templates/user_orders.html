@@ -1,0 +1,54 @@
+{% extends 'base_customer.html' %}
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h4 class="fw-bold mb-3">📦 My Orders</h4>
+
+  {% if orders %}
+    {% for order in orders %}
+    <div class="card-body">
+      <h6>Order #{{ order.id }}</h6>
+      <p><strong>Business:</strong> {{ order.business.name }}</p>
+      <p><strong>Table:</strong> {{ order.table.table_number }}</p>
+      <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+      <p><strong>Total:</strong> ${{ order.total_price }}</p>
+      <p><strong>Time:</strong> {{ order.ordered_at|date:"Y-m-d H:i" }}</p>
+      <a href="{% url 'order_detail' user_id=user_id order_id=order.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+      {% if order.status == "completed" and not order.has_reviewed %}
+      <a href="{% url 'add_review' user_id=user_id order_id=order.id %}" class="btn btn-outline-success btn-sm">Write Review</a>
+      {% endif %}
+    </div>
+    
+    {% endfor %}
+
+    <!-- Pagination -->
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if orders.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ orders.previous_page_number }}">Previous</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Previous</span></li>
+        {% endif %}
+
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ orders.number }} of {{ orders.paginator.num_pages }}</span>
+        </li>
+
+        {% if orders.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ orders.next_page_number }}">Next</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Next</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+
+  {% else %}
+    <p class="text-muted">You haven't placed any orders yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

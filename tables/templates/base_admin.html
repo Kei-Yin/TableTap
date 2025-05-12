@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Admin Panel - Table Tap{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="{% static 'plugins/bootstrap-5.3.3-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+  <script src="{% static 'plugins/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js' %}"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-wrapper {
+      display: flex;
+      flex: 1;
+    }
+    .sidebar {
+      width: 220px;
+      background-color: #f8f9fa;
+      height: 100vh;
+      padding-top: 1rem;
+    }
+    .sidebar a {
+      display: block;
+      padding: 10px 20px;
+      color: #333;
+      text-decoration: none;
+    }
+    .sidebar a.active,
+    .sidebar a:hover {
+      background-color: #ffc107;
+      color: #000;
+      font-weight: bold;
+    }
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<nav class="navbar navbar-dark bg-warning shadow-sm px-3">
+  <div class="container-fluid">
+    <span class="navbar-brand">Table Tap Admin</span>
+    <span class="text-end">
+      Hi, {{ request.session.username }} |
+      <a href="{% url 'logout' %}" class="btn btn-outline-dark btn-sm ms-2">Logout</a>
+    </span>
+  </div>
+</nav>
+
+<!-- 管理员页面主结构 -->
+<div class="admin-wrapper">
+  <!-- Sidebar -->
+  <div class="sidebar border-end">
+    <a href="{% url 'admin_dashboard' request.session.user_id %}" class="{% if active_page == 'dashboard' %}active{% endif %}">📊 Data Analysis</a>
+    <a href="{% url 'admin_orders' request.session.user_id %}" class="{% if active_page == 'orders' %}active{% endif %}">🧾 Order Management</a>
+    <a href="{% url 'admin_menu' request.session.user_id %}" class="{% if active_page == 'menu' %}active{% endif %}">🍔 Menu Management</a>
+    <a href="{% url 'admin_categories' request.session.user_id %}" class="{% if active_page == 'categories' %}active{% endif %}">📂 Categories</a>
+    <a href="{% url 'table_list' request.session.user_id %}" class="{% if active_page == 'tables' %}active{% endif %}">🪑 Table Management</a>
+    <a href="{% url 'business_list' request.session.user_id %}" class="{% if active_page == 'business' %}active{% endif %}">🏪 Business Management</a>
+    <a href="{% url 'admin_change_password' request.session.user_id %}" class="{% if active_page == 'password' %}active{% endif %}">🔒 Change Your Password</a>
+  </div>
+
+  <div class="main-content">
+    {% block content %}
+    {% endblock %}
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends 'base_admin.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h4>Sales data</h4>
+<canvas id="salesChart" height="100"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('salesChart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [{
+        label: 'Sales',
+        data: [12, 19, 3, 5, 2, 3, 9],
+        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+      }]
+    }
+  });
+</script>
+{% endblock %}

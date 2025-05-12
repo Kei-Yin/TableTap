@@ -1,54 +1,60 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block title %}Admin Menu{% endblock %}
+{% extends 'base_admin.html' %}
+{% block title %}Menu Management{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h4 mb-0">Menu Management</h2>
-    <a href="{% url 'add_menu_item' %}" class="btn btn-success">+ Add New Cuisine</a>
+<div class="row">
+  <!-- Left Side Category Navigation -->
+  <div class="col-md-3">
+    <h5>classifications</h5>
+    <ul class="list-group">
+      {% for category in categories %}
+        <li class="list-group-item">
+          <a href="#category-{{ category.id }}" class="text-decoration-none">{{ category.name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+    <a href="{% url 'add_menu_item' user_id %}" class="btn btn-success w-100 mt-3">Add Dish</a>
   </div>
 
-  <div class="row">
-    {% for item in menu_items %}
-    <div class="col-6 col-md-4 col-lg-3 mb-4">
-      <div class="card h-100 shadow-sm">
-        <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.name }}" style="height: 160px; object-fit: cover;">
-        <div class="card-body d-flex flex-column">
-          <h6 class="card-title">{{ item.name }}</h6>
-          <p class="text-muted small">{{ item.description }}</p>
-          <p class="fw-bold text-danger mb-2">¥{{ item.price }}</p>
-          <div class="mt-auto d-flex justify-content-between">
-            <a href="{% url 'edit_menu_item' item.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
-            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="{{ item.id }}" data-name="{{ item.name }}">Delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- Contents of the dishes on the right -->
+  <div class="col-md-9">
+    {% for category in categories %}
+      <h4 id="category-{{ category.id }}" class="mt-4">{{ category.name }}</h4>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Image</th>
+            <th>Operation</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in menu_items %}
+            {% if item.category.id == category.id %}
+              <tr>
+                <td>{{ item.item_name }}</td>
+                <td>${{ item.price }}</td>
+                <td>
+                  {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="img" height="60">
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'edit_menu_item' user_id item.id %}" class="btn btn-sm btn-warning">Edit</a>
+                  <form method="POST" action="{% url 'delete_menu_item' user_id item.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    {% empty %}
+      <p class="text-muted">No Category</p>
     {% endfor %}
   </div>
 </div>
-
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-  <div class="modal-dialog">
-    <form method="POST" id="deleteForm" class="modal-content">
-      {% csrf_token %}
-      <div class="modal-header">
-        <h5 class="modal-title">确认删除</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p>确定要删除 <strong id="deleteItemName"></strong> 吗？此操作不可恢复。</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-        <button type="submit" class="btn btn-danger">确认删除</button>
-      </div>
-    </form>
-  </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/admin_menu.js' %}"></script>
 {% endblock %}

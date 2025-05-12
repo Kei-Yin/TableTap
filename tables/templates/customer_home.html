@@ -1,0 +1,25 @@
+{% extends 'base_customer.html' %}
+{% load static %}
+{% block title %}Welcome To Order{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <h1 class="mb-4 fw-bold">Welcome to Table Tap!</h1>
+  <p class="lead text-muted mb-4">Scan the QR code on your table to view the menu and place your order.</p>
+
+  <div class="card mx-auto shadow" style="max-width: 400px;">
+    <div class="card-body">
+      <h5 class="card-title">📷 Tap To Order</h5>
+      <p class="card-text">Allow access to the camera after aligning the QR code</p>
+
+      <div id="reader" style="width: 300px; height: 300px; margin: auto; display: none;"></div>
+
+      <button class="btn btn-primary mt-3" onclick="startScanner()">Activate code sweeping</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/scan.js' %}"></script>
+{% endblock %}

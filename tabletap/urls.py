@@ -17,8 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include,path
 from tables import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("tabletap/admin/", admin.site.urls),
     path("tabletap/", include("tables.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

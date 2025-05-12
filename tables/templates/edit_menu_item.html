@@ -1,28 +1,22 @@
-{% extends 'base.html' %}
-{% block title %}Edit Item{% endblock %}
+{% extends 'base_admin.html' %}
+{% block title %}Edit Menu{% endblock %}
 {% block content %}
 <div class="container py-4">
-  <h2 class="h4 mb-4">Edit Cuisine</h2>
-  <form method="POST">
+  <h2 class="h4 mb-4">Edit Menu</h2>
+
+  <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    <div class="mb-3">
-      <label class="form-label">Cuisine Name</label>
-      <input type="text" name="name" value="{{ item.name }}" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Description</label>
-      <textarea name="description" class="form-control" rows="2">{{ item.description }}</textarea>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Price</label>
-      <input type="number" name="price" step="0.01" value="{{ item.price }}" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">img url</label>
-      <input type="text" name="image_url" value="{{ item.image_url }}" class="form-control">
-    </div>
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a href="{% url 'admin_menu' %}" class="btn btn-secondary ms-2">Cancel</a>
+    {{ form.as_p }}
+
+    {% if item.image %}
+      <div class="mb-3">
+        <label class="form-label">Current image preview:</label><br>
+        <img src="{{ item.image.url }}" alt="当前图片" height="100">
+      </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="{% url 'admin_menu' user_id=user_id %}" class="btn btn-secondary ms-2">取消</a>
   </form>
 </div>
 {% endblock %}

@@ -1,52 +1,97 @@
-{% extends 'base.html' %}
+{% extends 'base_customer.html' %}
 {% load static %}
 
-{% block title %}Menu - Table Tap{% endblock %}
+{% block title %}Menu{% endblock %}
 
 {% block content %}
+<body data-user-id="{{ user_id }}" data-table-id="{{ table.id }}">
+
+<style>
+  @media (max-width: 768px) {
+    .mobile-left-nav {
+      position: fixed;
+      top: 56px;
+      bottom: 60px;
+      left: 0;
+      width: 100px;
+      overflow-y: auto;
+      background-color: #f8f9fa;
+      border-right: 1px solid #dee2e6;
+      z-index: 999;
+    }
+    .mobile-main-content {
+      margin-left: 100px;
+      padding: 1rem;
+    }
+  }
+</style>
+
+<!-- ✅Left side navigation -->
+<div class="d-md-none mobile-left-nav text-center py-3">
+  <div class="mb-2 small text-muted">Table #{{ table.table_number }}</div>
+  {% for group in grouped_items %}
+    <a href="#category-{{ group.category.id }}" class="d-block py-2 text-dark category-link small">
+      {{ group.category.name }}
+    </a>
+  {% endfor %}
+</div>
+
+<!-- ✅ Main content -->
 <div class="container-fluid">
   <div class="row">
-    <!-- 左侧分类 -->
-    <aside class="col-md-2 d-none d-md-block border-end bg-light pt-4" style="min-height: 80vh;">
+    <!-- Desktop left navigation -->
+    <div class="col-md-2 d-none d-md-block border-end bg-light pt-4 sticky-top" style="top: 0; height: 100vh;">
       <ul class="nav flex-column text-center">
-        <li class="nav-item"><a href="#burgers" class="nav-link text-dark">Burgers</a></li>
-        <li class="nav-item"><a href="#sides" class="nav-link text-dark">Snacks</a></li>
-        <li class="nav-item"><a href="#drinks" class="nav-link text-dark">Drinks</a></li>
+        <li class="nav-item text-muted small mb-2">Table #{{ table.table_number }}</li>
+        {% for group in grouped_items %}
+          <li class="nav-item">
+            <a href="#category-{{ group.category.id }}" class="nav-link text-dark category-link">
+              {{ group.category.name }}
+            </a>
+          </li>
+        {% endfor %}
       </ul>
-    </aside>
+    </div>
 
-    <!-- 右侧商品列表 -->
-    <section class="col-md-10">
-      <div class="row p-3" id="menuItems">
-        {% for item in menu_items %}
-        <div class="col-6 col-md-4 col-lg-3 mb-4">
-          <div class="card h-100 shadow-sm">
-            <img src="{% static 'images/' %}{{ item.image }}" class="card-img-top" alt="{{ item.name }}" style="height: 160px; object-fit: cover;">
-            <div class="card-body d-flex flex-column">
-              <h6 class="card-title">{{ item.name }}</h6>
-              <p class="card-text text-muted small">{{ item.description }}</p>
-              <div class="mt-auto d-flex justify-content-between align-items-center">
-                <span class="fw-bold text-danger">¥{{ item.price }}</span>
-                <div class="d-flex align-items-center quantity-control" data-id="{{ item.id }}" data-price="{{ item.price }}">
-                  <button class="btn btn-sm btn-outline-secondary btn-minus d-none">−</button>
-                  <span class="mx-2 quantity d-none">0</span>
-                  <button class="btn btn-sm btn-outline-primary btn-plus">+</button>
+    <!-- Right dish area (desktop + mobile) -->
+    <div class="col-12 col-md-10 pt-3 mobile-main-content">
+      {% for group in grouped_items %}
+        <h5 id="category-{{ group.category.id }}" class="fw-bold mt-4 mb-3">{{ group.category.name }}</h5>
+        <div class="row g-3">
+          {% for item in group.items %}
+          <div class="col-12">
+            <div class="card shadow-sm d-flex flex-row align-items-center p-2">
+              {% if item.image %}
+              <img src="{{ item.image.url }}" class="rounded me-3" style="width: 100px; height: 100px; object-fit: cover;" />
+              {% endif %}
+              <div class="flex-grow-1">
+                <h6 class="mb-1 fw-bold">{{ item.item_name }}</h6>
+                <p class="text-muted mb-2 small">{{ item.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-danger fw-bold">¥{{ item.price }}</span>
+                  <div class="d-flex align-items-center quantity-control" data-id="{{ item.id }}" data-price="{{ item.price }}">
+                    <button class="btn btn-sm btn-outline-secondary btn-minus d-none">−</button>
+                    <span class="mx-2 quantity d-none">0</span>
+                    <button class="btn btn-sm btn-outline-primary btn-plus">＋</button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-      </div>
-    </section>
+      {% endfor %}
+    </div>
   </div>
 </div>
 
-<!-- 购物车浮层 -->
-<div id="cartBar" class="fixed-bottom bg-dark text-white py-2 px-3 d-flex justify-content-between align-items-center" style="display: none;">
-  <span id="cartSummary">Unpurchased items</span>
-  <button class="btn btn-warning" id="checkoutBtn">Continue</button>
+<!-- ✅ 购物车浮层 -->
+<div id="cartBar" class="bg-dark text-white py-2 px-3 d-flex justify-content-between align-items-center"
+     style="display: none; position: fixed; bottom: 60px; left: 0; right: 0; z-index: 1080;">
+  <span id="cartSummary">Unpicked items</span>
+  <button class="btn btn-warning" id="checkoutBtn">Go to checkout</button>
 </div>
+</body>
 {% endblock %}
 
 {% block extra_js %}

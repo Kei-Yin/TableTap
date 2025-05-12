@@ -1,0 +1,24 @@
+{% extends 'base_customer.html' %}
+{% block title %}User Center{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h4 class="fw-bold mb-3">👤 My Account</h4>
+
+  <!-- User Info -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Registered at:</strong> {{ user.created_at|date:"Y-m-d H:i" }}</p>
+    </div>
+  </div>
+
+  <!-- Menu -->
+  <div class="list-group">
+    <a href="{% url 'orders' user_id=user_id %}" class="list-group-item list-group-item-action">📦 My Orders</a>
+    <a href="{% url 'reviews' user_id=user_id %}" class="list-group-item list-group-item-action">📝 My Reviews</a>
+    <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger">🚪 Log Out</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,60 +1,62 @@
 {% extends 'base.html' %}
-
 {% block title %}Welcome to Table Tap{% endblock %}
+{% load static %}
 
 {% block content %}
-
-{% load static %}
-<!-- Hero Section -->
 <section class="py-5 bg-light text-center">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4">Effortless Table Reservations</h1>
-                <p class="lead">Table Tap makes dining more convenient with seamless online table reservations and order management.</p>
-                <a href="{% url 'menu'%}" class="btn btn-primary btn-lg mb-3 mb-lg-0">Explore Menu</a>
-            </div>
-            <div class="col-lg-6">
-                <img src="{% static 'images/tabletap.png' %}" alt="Table Tap Experience" class="img-fluid rounded shadow">
-            </div>
-        </div>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4">Effortless Table Reservations</h1>
+        <p class="lead">Table Tap makes dining more convenient with seamless online table reservations and order management.</p>
+
+        {% if request.session.role == "owner" or request.session.role == "staff" %}
+          <a href="{% url 'admin_menu' request.session.user_id  %}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+        {% elif request.session.role == "customer" %}
+          <a href="{% url 'register'  %}" class="btn btn-primary btn-lg">Explore Menu</a>
+        {% else %}
+          <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Explore TableTap</a>
+        {% endif %}
+      </div>
+      <div class="col-lg-6">
+        <img src="{% static 'images/tabletap.png' %}" alt="Table Tap Experience" class="img-fluid rounded shadow">
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- Features Section -->
 <section class="py-5">
-    <div class="container">
-        <h2 class="text-center mb-4">Why Choose Table Tap?</h2>
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <i class="bi bi-table fs-1 text-primary"></i>
-                        <h4 class="card-title">Easy Table Reservations</h4>
-                        <p class="card-text">Book your favorite table with a single tap.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <i class="bi bi-card-checklist fs-1 text-primary"></i>
-                        <h4 class="card-title">Real-Time Order Management</h4>
-                        <p class="card-text">View and manage your orders on the go.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <i class="bi bi-star fs-1 text-primary"></i>
-                        <h4 class="card-title">Customer Reviews</h4>
-                        <p class="card-text">See what others think about their experience.</p>
-                    </div>
-                </div>
-            </div>
+  <div class="container">
+    <h2 class="text-center mb-4">Why Choose Table Tap?</h2>
+    <div class="row">
+      <div class="col-lg-4 mb-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="bi bi-table fs-1 text-primary"></i>
+            <h4 class="card-title">Easy Table Reservations</h4>
+            <p class="card-text">Book your favorite table with a single tap.</p>
+          </div>
         </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="bi bi-card-checklist fs-1 text-primary"></i>
+            <h4 class="card-title">Real-Time Order Management</h4>
+            <p class="card-text">View and manage your orders on the go.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <i class="bi bi-star fs-1 text-primary"></i>
+            <h4 class="card-title">Customer Reviews</h4>
+            <p class="card-text">See what others think about their experience.</p>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
-
 {% endblock %}

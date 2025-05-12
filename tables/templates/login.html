@@ -1,12 +1,36 @@
 {% extends 'base.html' %}
 {% block title %}Login - Table Tap{% endblock %}
+
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4">Login</h2>
-    <form>
-        <input type="text" placeholder="Username" class="w-full p-2 border rounded mb-4">
-        <input type="password" placeholder="Password" class="w-full p-2 border rounded mb-4">
-        <button class="w-full bg-blue-600 text-white p-2 rounded">Login</button>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+  <div class="card shadow-sm p-4" style="width: 100%; max-width: 420px; border-radius: 20px;">
+    <h3 class="text-center mb-4">Log in with your email</h3>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label visually-hidden">Email</label>
+        <input type="email" name="email" class="form-control rounded-pill" placeholder="Email" required>
+      </div>
+      <div class="mb-3 position-relative">
+        <label class="form-label visually-hidden">Password</label>
+        <input type="password" name="password" class="form-control rounded-pill" placeholder="Password" required>
+        <!-- 可选图标占位，非功能性 -->
+        <span class="position-absolute end-0 top-50 translate-middle-y me-3 text-muted" style="cursor: pointer;">
+          <i class="bi bi-eye-slash"></i>
+        </span>
+        <div class="text-end small mt-1">
+          <a href="#" class="text-decoration-none text-muted">Forgot your password?</a>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-dark w-100 rounded-pill">Login</button>
+      <a href="javascript:history.back()" class="btn btn-outline-secondary w-100 rounded-pill mt-2">Go back</a>
     </form>
+
+    <div class="text-center mt-3 small">
+      Don’t have an account?
+      <a href="{% url 'register' %}" class="text-decoration-none">Sign up</a>
+    </div>
+  </div>
 </div>
 {% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base_admin.html' %}
+{% block title %}Order Management{% endblock %}
+{% load static %}
+{% block content %}
+<h4>Order List</h4>
+
+<table class="table table-bordered">
+  <thead>
+    <tr><th>ID</th><th>Table Number</th><th>Statu</th><th>Total Price</th><th>Process</th></tr>
+  </thead>
+  <tbody>
+    {% for order in page_obj %}
+    <tr data-bs-toggle="collapse" data-bs-target="#details-{{ order.id }}" class="accordion-toggle">
+      <td>{{ order.id }}</td>
+      <td>{{ order.table.table_number }}</td>
+      <td>{{ order.get_status_display }}</td>
+      <td>¥{{ order.total_price }}</td>
+      <td>
+        {% if order.status == "pending" or order.status == "preparing" %}
+        <form method="POST" action="{% url 'update_order_status' user_id order.id %}">
+          {% csrf_token %}
+          {% if order.status == "pending" %}
+            <input type="hidden" name="next_status" value="preparing">
+            <button class="btn btn-sm btn-primary">Start Preparing</button>
+          {% elif order.status == "preparing" %}
+            <input type="hidden" name="next_status" value="completed">
+            <button class="btn btn-sm btn-success">Complete</button>
+          {% endif %}
+        </form>
+        {% else %}
+          <span class="text-muted">Completed</span>
+        {% endif %}
+      </td>
+    </tr>
+    <tr class="collapse bg-light" id="details-{{ order.id }}">
+      <td colspan="5">
+        <strong>Order Detail：</strong>
+        <ul class="mb-0 ps-3">
+          {% for item in order.items.all %}
+            <li>{{ item.menu_item.item_name }} × {{ item.quantity }}</li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5" class="text-center">No Orders</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Page navigation -->
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Pre</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Pre</span></li>
+    {% endif %}
+
+    <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Pre</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Next</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/admin_orders.js' %}"></script>
+{% endblock %}

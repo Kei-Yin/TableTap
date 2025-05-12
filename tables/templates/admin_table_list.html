@@ -1,0 +1,62 @@
+{% extends 'base_admin.html' %}
+{% block title %}Table Number Management{% endblock %}
+{% block content %}
+
+<button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addTableModal">Add Table Number</button>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Created At</th>
+      <th>Table Number</th>
+      <th>QR Code</th>
+      <th>Operation</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for table in tables %}
+    <tr>
+      <td>{{ table.created_at|date:"Y-m-d H:i:s" }}</td>
+      <td>{{ table.table_number }}</td>
+      <td>
+        {% if table.qr_code %}
+          <img src="{{ table.qr_code.url }}" height="60">
+        {% endif %}
+      </td>
+      <td>
+        <form method="POST" action="{% url 'delete_table' user_id=user_id table_id=table.id %}">
+          {% csrf_token %}
+          <button class="btn btn-warning btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4" class="text-center">No Tables</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="addTableModal" tabindex="-1" aria-labelledby="addTableLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'add_table' user_id=user_id %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="addTableLabel">Add Table Number</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {{ form.table_number.label_tag }}
+          {{ form.table_number }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

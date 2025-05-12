@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -94,7 +95,7 @@ WSGI_APPLICATION = "tabletap.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'resumebuilder_db',
+        'NAME': 'tabletap_db',
         'USER': 'root',
         'PASSWORD': '0a5a6250c431f0a4f98c6ed6',
         'HOST': 'localhost',
@@ -127,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Australia/Brisbane"
 
 USE_I18N = True
 
@@ -148,3 +149,6 @@ STATIC_ROOT = "/var/www/htdocs/tabletap_static/"  # This is within the Nginx web
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

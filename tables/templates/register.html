@@ -1,13 +1,43 @@
 {% extends 'base.html' %}
 {% block title %}Register - Table Tap{% endblock %}
+
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4">Register</h2>
-    <form>
-        <input type="text" placeholder="Username" class="w-full p-2 border rounded mb-4">
-        <input type="email" placeholder="Email" class="w-full p-2 border rounded mb-4">
-        <input type="password" placeholder="Password" class="w-full p-2 border rounded mb-4">
-        <button class="w-full bg-green-600 text-white p-2 rounded">Register</button>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+  <div class="card shadow-sm p-4" style="width: 100%; max-width: 420px; border-radius: 20px;">
+    <h3 class="text-center mb-4">Create your account</h3>
+
+    <!-- form area -->
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-3">
+        <input type="text" name="username" class="form-control rounded-pill" placeholder="Username" required>
+      </div>
+      <div class="mb-3">
+        <input type="email" name="email" class="form-control rounded-pill" placeholder="Email" required>
+      </div>
+      <div class="mb-3">
+        <input type="password" name="password" class="form-control rounded-pill" placeholder="Password" required>
+      </div>
+      <div class="mb-3">
+        <select name="role" class="form-select rounded-pill" required>
+          <option value="">Register as...</option>
+          <option value="customer">Customer</option>
+          <option value="owner">Business Owner</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 rounded-pill">Register</button>
     </form>
+
+    <!-- X Login -->
+    <div class="text-center text-muted my-3">──────── or ────────</div>
+    <div class="d-grid gap-2 mb-3">
+      <button class="btn btn-dark rounded-pill w-100"><i class="bi bi-twitter me-2"></i> Sign up with X</button>
+    </div>
+
+    <!-- Login Jump -->
+    <div class="text-center mt-2 small">
+      Already have an account? <a href="{% url 'login' %}">Sign in</a>
+    </div>
+  </div>
 </div>
 {% endblock %}

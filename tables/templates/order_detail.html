@@ -1,0 +1,30 @@
+{% extends 'base_customer.html' %}
+{% block title %}Order Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h3 class="mb-4">Order Number #{{ order.id }}</h3>
+
+  <p><strong>Table number:</strong> {{ order.table.table_number }}</p>
+  <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+  <p><strong>Time to order:</strong> {{ order.ordered_at|date:"Y-m-d H:i:s" }}</p>
+
+  <hr>
+
+  <h5>List of Order</h5>
+  <table class="table">
+    <thead><tr><th>Dish</th><th>Quantities</th><th>Price</th></tr></thead>
+    <tbody>
+      {% for item in order.items.all %}
+      <tr>
+        <td>{{ item.menu_item.item_name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>¥{{ item.item_price }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h5 class="text-end">Total Price:<span class="text-danger">¥{{ order.total_price }}</span></h5>
+</div>
+{% endblock %}

@@ -1,40 +1,22 @@
-{% extends 'base.html' %}
-{% block title %}Orders - Table Tap{% endblock %}
+<!-- orders.html -->
+{% extends 'base_customer.html' %}
+{% block title %}My Orders{% endblock %}
 {% block content %}
-{% load static %}
-<div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-    <h2 class="text-2xl font-bold mb-4">Your Orders</h2>
-    <ul class="border rounded p-4">
-        <li class="py-2">Order #1234 - $25.99 - <span class="text-blue-600">Pending</span></li>
-    </ul>
+<div class="container py-3">
+  <h4 class="mb-4">My Orders</h4>
+  {% for order in orders %}
+    <div class="border rounded p-3 mb-3">
+      <strong>Order Number:#{{ order.id }}</strong><br>
+      Status:<span class="badge bg-info">{{ order.get_status_display }}</span><br>
+      Total price: ${{ order.total_price }}<br>
+      <ul class="mt-2">
+        {% for item in order.items.all %}
+          <li>{{ item.menu_item.item_name }} × {{ item.quantity }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% empty %}
+    <p class="text-muted">No orders</p>
+  {% endfor %}
 </div>
-
-<section class="container-fluid px-0">
-  <div class="row g-0">
-    <!-- 区块 1 -->
-    <div class="col-12 col-md-4 section-item" style="background-image: url({% static 'images/tabletap.png' %});">
-      <div class="overlay">
-        <h2>Menu</h2>
-        <a href="{% url 'menu'%}" class="btn btn-outline-light">Explore</a>
-      </div>
-    </div>
-
-    <!-- 区块 2 -->
-    <div class="col-12 col-md-4 section-item" style="background-image: url({% static 'images/tabletap.png' %});">
-      <div class="overlay">
-        <h2>Orders</h2>
-        <a href="{% url 'orders'%}" class="btn btn-outline-light">Track</a>
-      </div>
-    </div>
-
-    <!-- 区块 3 -->
-    <div class="col-12 col-md-4 section-item" style="background-image: url({% static 'images/tabletap.png' %});">
-      <div class="overlay">
-        <h2>Reviews</h2>
-        <a href="{% url 'reviews'%}" class="btn btn-outline-light">Read</a>
-      </div>
-    </div>
-  </div>
-</section>
-
 {% endblock %}
