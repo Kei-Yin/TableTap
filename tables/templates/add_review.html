@@ -5,23 +5,9 @@
 <div class="container py-4">
   <h4 class="fw-bold mb-3">📝 Write a Review for {{ order.business.name }}</h4>
 
-  <form method="POST">
+  <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    
-    <div class="mb-3">
-      <label class="form-label">Rating (1 - 5)</label>
-      <select name="rating" class="form-select" required>
-        <option value="">Select...</option>
-        {% for i in "12345" %}
-        <option value="{{ i }}">{{ i }} ★</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Comment (optional)</label>
-      <textarea name="comment" class="form-control" rows="3" placeholder="Leave a comment..."></textarea>
-    </div>
+    {{ form.as_p }}
 
     <button type="submit" class="btn btn-primary">Submit Review</button>
     <a href="{% url 'reviews' user_id=user_id %}" class="btn btn-secondary ms-2">Cancel</a>

@@ -11,7 +11,8 @@ class User(models.Model):
     password = models.CharField(max_length=128)  # 明文，仅作业使用
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+    
     def __str__(self):
         return self.username
 
@@ -110,9 +111,30 @@ class OrderItem(models.Model):
 class Review(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='reviews')
+    order = models.OneToOneField('Order', on_delete=models.CASCADE, null=True, blank=True, related_name='review')  # 新增字段
     rating = models.PositiveSmallIntegerField()
     comment = models.TextField(blank=True)
+    photo = models.ImageField(upload_to='review_photos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.customer.username} ★{self.rating}"
+
+
+class ReviewLike(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    liked_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('review', 'user')  # 每人只能点赞一次
+
+
+class ReviewReply(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='replies')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    replied_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reply by {self.user.username} on Review #{self.review.id}"

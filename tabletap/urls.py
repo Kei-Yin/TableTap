@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("tabletap/admin/", admin.site.urls),
     path("tabletap/", include("tables.urls")),
+    path('tabletap/accounts/', include('allauth.urls')),
 ]
 
 if settings.DEBUG:

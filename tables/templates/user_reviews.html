@@ -12,6 +12,13 @@
           <h6 class="mb-1"><strong>Business:</strong> {{ review.business.name }}</h6>
           <p><strong>Rating:</strong> {{ review.rating }} ⭐</p>
           <p><strong>Comment:</strong> {{ review.comment }}</p>
+
+          {% if review.photo %}
+            <div class="mb-2">
+              <img src="{{ review.photo.url }}" class="img-fluid rounded shadow-sm" style="max-height: 200px;" alt="review photo">
+            </div>
+          {% endif %}
+
           <p class="text-muted mb-0">Posted on {{ review.created_at|date:"Y-m-d H:i" }}</p>
         </div>
       </div>

@@ -19,12 +19,12 @@
       <tr>
         <td>{{ item.menu_item.item_name }}</td>
         <td>{{ item.quantity }}</td>
-        <td>¥{{ item.item_price }}</td>
+        <td>${{ item.item_price }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
-  <h5 class="text-end">Total Price:<span class="text-danger">¥{{ order.total_price }}</span></h5>
+  <h5 class="text-end">Total Price:<span class="text-danger">${{ order.total_price }}</span></h5>
 </div>
 {% endblock %}

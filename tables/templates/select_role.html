@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Select Role{% endblock %}
+
+{% block content %}
+<div class="container py-4 text-center">
+  <h3 class="mb-4">👤 Please select your role</h3>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <select name="role" class="form-select w-50 mx-auto rounded-pill" required>
+        <option value="">Choose your role</option>
+        <option value="customer">Customer</option>
+        <option value="owner">Business Owner</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary rounded-pill px-4">Continue</button>
+  </form>
+</div>
+{% endblock %}

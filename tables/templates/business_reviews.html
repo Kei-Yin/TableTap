@@ -1,0 +1,31 @@
+{% extends 'base_customer.html' %}
+{% block title %}{{ business.name }} Reviews{% endblock %}
+{% load static %}
+{% block content %}
+<div class="container py-4">
+  <h4 class="fw-bold mb-3">{{ business.name }} Reviews</h4>
+
+  {% for review in reviews %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="fw-bold">{{ review.customer.username }} 
+          <small class="text-muted">({{ review.created_at|date:"Y-m-d H:i" }})</small>
+        </h6>
+        <p class="mb-1">Rating: ⭐{{ review.rating }}</p>
+        <p>{{ review.comment }}</p>
+        {% if review.photo %}
+          <img src="{{ review.photo.url }}" class="img-fluid rounded" style="max-height: 200px;">
+        {% endif %}
+        {% if review.customer.id == user_id %}
+          <form method="POST" action="{% url 'delete_review' user_id=user_id review_id=review.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger mt-2">Delete</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">No reviews for this business yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

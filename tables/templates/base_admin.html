@@ -58,13 +58,24 @@
 <div class="admin-wrapper">
   <!-- Sidebar -->
   <div class="sidebar border-end">
-    <a href="{% url 'admin_dashboard' request.session.user_id %}" class="{% if active_page == 'dashboard' %}active{% endif %}">📊 Data Analysis</a>
-    <a href="{% url 'admin_orders' request.session.user_id %}" class="{% if active_page == 'orders' %}active{% endif %}">🧾 Order Management</a>
-    <a href="{% url 'admin_menu' request.session.user_id %}" class="{% if active_page == 'menu' %}active{% endif %}">🍔 Menu Management</a>
-    <a href="{% url 'admin_categories' request.session.user_id %}" class="{% if active_page == 'categories' %}active{% endif %}">📂 Categories</a>
-    <a href="{% url 'table_list' request.session.user_id %}" class="{% if active_page == 'tables' %}active{% endif %}">🪑 Table Management</a>
-    <a href="{% url 'business_list' request.session.user_id %}" class="{% if active_page == 'business' %}active{% endif %}">🏪 Business Management</a>
-    <a href="{% url 'admin_change_password' request.session.user_id %}" class="{% if active_page == 'password' %}active{% endif %}">🔒 Change Your Password</a>
+    {% if request.session.role == 'owner' %}
+  <a href="{% url 'admin_dashboard' request.session.user_id %}" class="{% if active_page == 'dashboard' %}active{% endif %}">📊 Data Analysis</a>
+  <a href="{% url 'admin_orders' request.session.user_id %}" class="{% if active_page == 'orders' %}active{% endif %}">🧾 Order Management</a>
+  <a href="{% url 'admin_menu' request.session.user_id %}" class="{% if active_page == 'menu' %}active{% endif %}">🍔 Menu Management</a>
+  <a href="{% url 'manage_staff' request.session.user_id %}" class="{% if active_page == 'staff' %}active{% endif %}">🧑‍🍳 Staff Management</a>
+  <a href="{% url 'admin_categories' request.session.user_id %}" class="{% if active_page == 'categories' %}active{% endif %}">📂 Categories</a>
+  <a href="{% url 'table_list' request.session.user_id %}" class="{% if active_page == 'tables' %}active{% endif %}">🪑 Table Management</a>
+  <a href="{% url 'business_list' request.session.user_id %}" class="{% if active_page == 'business' %}active{% endif %}">🏪 Business Management</a>
+{% elif request.session.role == 'staff' %}
+  <a href="{% url 'admin_orders' request.session.user_id %}" class="{% if active_page == 'orders' %}active{% endif %}">🧾 Order Management</a>
+  <a href="{% url 'admin_menu' request.session.user_id %}" class="{% if active_page == 'menu' %}active{% endif %}">🍔 Menu Management</a>
+  <a href="{% url 'admin_categories' request.session.user_id %}" class="{% if active_page == 'categories' %}active{% endif %}">📂 Categories</a>
+  <a href="{% url 'table_list' request.session.user_id %}" class="{% if active_page == 'tables' %}active{% endif %}">🪑 Table Management</a>
+  <a href="{% url 'business_list' request.session.user_id %}" class="{% if active_page == 'business' %}active{% endif %}">🏪 Business Management</a>
+{% endif %}
+
+<a href="{% url 'admin_change_password' request.session.user_id %}" class="{% if active_page == 'password' %}active{% endif %}">🔒 Change Your Password</a>
+
   </div>
 
   <div class="main-content">

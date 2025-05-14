@@ -1,10 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import User, Menu, MenuItem, Table, Order, OrderItem, Review, Business, Category
-from .forms import TableForm, BusinessForm, CategoryForm, MenuItemForm
+from django.contrib.sessions.models import Session
+from .models import User, Menu, MenuItem, Table, Order, OrderItem, Review, Business, Category, StaffAssignment
+from .forms import TableForm, BusinessForm, CategoryForm, MenuItemForm, AddStaffForm, ReviewForm
+from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+import json
+from django.views.decorators.http import require_POST
+from django.http import HttpResponseForbidden
+from django.db import models
 import qrcode
 from io import BytesIO
 
@@ -39,13 +47,30 @@ def login_view(request):
         user = User.objects.filter(email=email, password=password).first()
 
         if user:
+            if not request.session.session_key:
+                request.session.create()
+
+            current_session_key = request.session.session_key
+
+            if user.session_key and user.session_key != current_session_key:
+                try:
+                    old_session = Session.objects.get(session_key=user.session_key)
+                    old_session.delete()
+                except Session.DoesNotExist:
+                    pass
+
             request.session["user_id"] = user.id
             request.session["username"] = user.username
             request.session["role"] = user.role
 
+            user.session_key = current_session_key
+            user.save()
+
             return redirect("dashboard_redirect", user_id=user.id)
+
         else:
             messages.error(request, "Invalid email or password.")
+
     return render(request, "login.html")
 
 def logout_view(request):
@@ -64,6 +89,30 @@ def dashboard_redirect(request, user_id):
     else:
         return redirect("login")
 
+@login_required
+def role_redirect(request):
+    user = request.user
+    if not hasattr(user, "role") or not user.role:
+        return redirect('select_role')
+
+    if user.role == "customer":
+        return redirect("customer_home", user_id=user.id)
+    elif user.role == "owner":
+        return redirect("admin_dashboard", user_id=user.id)
+    else:
+        return redirect("login")
+
+@login_required
+def select_role(request):
+    if request.method == "POST":
+        role = request.POST.get("role")
+        if role in ['customer', 'owner', 'staff']:
+            request.user.role = role
+            request.user.save()
+            request.session['role'] = role  # ✅ 保持兼容你原有 session 管理
+            return redirect('role_redirect')
+    return render(request, "select_role.html")
+
 
 # ======================= 顾客端视图 =======================
 
@@ -71,7 +120,7 @@ def menu(request, table_id):
     table = get_object_or_404(Table, pk=table_id)
     menu = Menu.objects.filter(business=table.business).first()
     if not menu:
-        return render(request, "menu.html", {"error": "暂无菜单"})
+        return render(request, "menu.html", {"error": "No menu"})
 
     categories = Category.objects.filter(business=table.business).order_by("created_at")
 
@@ -96,7 +145,7 @@ def menu(request, table_id):
 def customer_home(request, user_id):
     if request.session.get("user_id") != user_id or request.session.get("role") != "customer":
         return redirect("login")
-    return render(request, "customer_home.html", {"user_id": user_id})
+    return render(request, "customer_home.html", {"active_page": "home", "user_id": user_id})
 
 def user_center(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -115,20 +164,22 @@ def orders(request, user_id):
         return redirect("login")
 
     order_list = Order.objects.filter(user_id=user_id).select_related("business", "table").order_by("-ordered_at")
-
-    # ✅ 添加：为每个订单标记是否已评价过
-    for order in order_list:
-        order.has_reviewed = Review.objects.filter(customer_id=user_id, business=order.business).exists()
-
-    paginator = Paginator(order_list, 5)  # 5 orders per page
+    paginator = Paginator(order_list, 5)
     page = request.GET.get("page")
     orders = paginator.get_page(page)
+
+    # 改为：查询用户已经评论过的订单 ID
+    reviewed_order_ids = set(
+        Review.objects.filter(customer_id=user_id).values_list("order_id", flat=True)
+    )
 
     return render(request, "user_orders.html", {
         "orders": orders,
         "user_id": user_id,
+        "reviewed_order_ids": reviewed_order_ids,
         "active_page": "orders"
     })
+
 
 
 def order_detail(request, user_id, order_id):
@@ -160,35 +211,101 @@ def add_review(request, user_id, order_id):
         return redirect("login")
 
     order = get_object_or_404(Order, id=order_id, user_id=user_id, status="completed")
-    
-    # 如果已经有评价了，跳转
-    if Review.objects.filter(customer_id=user_id, business=order.business).exists():
-        messages.info(request, "You have already reviewed this business.")
+
+    if Review.objects.filter(customer_id=user_id, order=order).exists():
+        messages.info(request, "You have already reviewed this order.")
         return redirect("reviews", user_id=user_id)
 
     if request.method == "POST":
-        rating = int(request.POST.get("rating", 0))
-        comment = request.POST.get("comment", "")
-
-        Review.objects.create(
-            customer_id=user_id,
-            business=order.business,
-            rating=rating,
-            comment=comment
-        )
-        messages.success(request, "Review submitted successfully.")
-        return redirect("reviews", user_id=user_id)
+        form = ReviewForm(request.POST, request.FILES)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.customer_id = user_id
+            review.business = order.business
+            review.order = order
+            review.save()
+            messages.success(request, "Review submitted successfully.")
+            return redirect("reviews", user_id=user_id)
+    else:
+        form = ReviewForm()
 
     return render(request, "add_review.html", {
+        "form": form,
         "order": order,
         "user_id": user_id
     })
+
+def all_reviews(request, user_id):
+    if request.session.get("user_id") != user_id:
+        return redirect("login")
+
+    businesses = Business.objects.all().annotate(review_count=models.Count("reviews"))
+    return render(request, "all_reviews.html", {
+        "user_id": user_id,
+        "businesses": businesses,
+        "active_page": "reviews"
+    })
+
+def business_reviews(request, user_id, business_id):
+    if request.session.get("user_id") != user_id:
+        return redirect("login")
+    business = get_object_or_404(Business, pk=business_id)
+    reviews = Review.objects.filter(business=business).select_related("customer").order_by("-created_at")
+    return render(request, "business_reviews.html", {
+        "business": business,
+        "reviews": reviews,
+        "user_id": user_id
+    })
+
+
+@require_POST
+def like_review(request, review_id):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return JsonResponse({"error": "Login required"}, status=403)
+
+    review = get_object_or_404(Review, pk=review_id)
+    _, created = ReviewLike.objects.get_or_create(review=review, user_id=user_id)
+    return JsonResponse({"success": created, "likes": review.likes.count()})
+
+@require_POST
+def reply_review(request, review_id):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return JsonResponse({"error": "Login required"}, status=403)
+
+    reply_text = request.POST.get("reply")
+    if reply_text:
+        ReviewReply.objects.create(
+            review_id=review_id,
+            user_id=user_id,
+            reply=reply_text
+        )
+        return JsonResponse({"success": True})
+    return JsonResponse({"error": "Empty reply"}, status=400)
+
+@require_POST
+def delete_review(request, user_id, review_id):
+    review = get_object_or_404(Review, id=review_id, customer_id=user_id)
+    review.delete()
+    messages.success(request, "Review deleted.")
+    return redirect("reviews", user_id=user_id)
 
 
 # ======================= 工具函数 =======================
 
 def get_current_business(request):
-    return Business.objects.filter(id=request.session.get("business_id")).first()
+    role = request.session.get("role")
+    user_id = request.session.get("user_id")
+
+    if role == "owner":
+        return Business.objects.filter(owner_id=user_id).first()
+    elif role == "staff":
+        assignment = StaffAssignment.objects.filter(user_id=user_id).first()
+        if assignment:
+            return assignment.business
+    return None
+
 
 def generate_qr_code_image(table_id):
     domain = "https://infs3202-4582d0a5.uqcloud.net"  # 或从 settings 或 request 里动态获取
@@ -375,13 +492,25 @@ def admin_change_password(request, user_id):
 def business_list(request, user_id):
     if request.session.get("user_id") != user_id:
         return redirect("login")
-    owner_id = user_id
-    businesses = Business.objects.filter(owner_id=owner_id)
-    return render(request, "admin_business_list.html", {"businesses": businesses, "user_id": user_id, "active_page": "business"})
+
+    role = request.session.get("role")
+
+    if role == "owner":
+        businesses = Business.objects.filter(owner_id=user_id)
+    elif role == "staff":
+        businesses = Business.objects.filter(staff__user_id=user_id).distinct()
+    else:
+        return HttpResponseForbidden("You do not have permission.")
+
+    return render(request, "admin_business_list.html", {
+        "businesses": businesses,
+        "user_id": user_id,
+        "active_page": "business"
+    })
 
 def add_business(request, user_id):
-    if request.session.get("user_id") != user_id:
-        return redirect("login")
+    if request.session.get("user_id") != user_id or request.session.get("role") != "owner":
+        return HttpResponseForbidden("You do not have permission.")
     if request.method == "POST":
         form = BusinessForm(request.POST)
         if form.is_valid():
@@ -395,8 +524,8 @@ def add_business(request, user_id):
     return render(request, "admin_add_business.html", {"form": form, "user_id": user_id})
 
 def edit_business(request, user_id, business_id):
-    if request.session.get("user_id") != user_id:
-        return redirect("login")
+    if request.session.get("user_id") != user_id or request.session.get("role") != "owner":
+        return HttpResponseForbidden("You do not have permission.")
     business = get_object_or_404(Business, pk=business_id, owner_id=user_id)
     if request.method == "POST":
         form = BusinessForm(request.POST, instance=business)
@@ -410,14 +539,61 @@ def edit_business(request, user_id, business_id):
 def use_business(request, user_id, business_id):
     if request.session.get("user_id") != user_id:
         return redirect("login")
-    business = get_object_or_404(Business, pk=business_id, owner_id=user_id)
+
+    role = request.session.get("role")
+
+    if role == "owner":
+        business = get_object_or_404(Business, pk=business_id, owner_id=user_id)
+    elif role == "staff":
+        business = get_object_or_404(Business, pk=business_id, staff__user_id=user_id)
+    else:
+        return HttpResponseForbidden("You do not have permission.")
+
     request.session["business_id"] = business.id
-    messages.success(request, f"已切换到商家：{business.name}")
+    messages.success(request, f"Switched to business: {business.name}")
     return redirect("business_list", user_id=user_id)
 
 
-from django.http import JsonResponse
-import json
+def manage_staff(request, user_id):
+    if request.session.get("user_id") != user_id:
+        return redirect("login")
+
+    business = Business.objects.filter(owner_id=user_id).first()
+    if not business:
+        return HttpResponse("No Business matches the given query.", status=404)
+
+    form = AddStaffForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        email = form.cleaned_data["email"]
+        password = form.cleaned_data["password"] or "123456"
+
+        user, created = User.objects.get_or_create(email=email, defaults={
+            "username": email.split("@")[0],
+            "role": "staff",
+            "password": make_password(password),
+        })
+
+        StaffAssignment.objects.get_or_create(user=user, business=business)
+
+        return redirect("manage_staff", user_id=user_id)
+
+    assigned_staff = business.staff.select_related("user")
+
+    return render(request, "admin_manage_staff.html", {
+        "form": form,
+        "staff_list": assigned_staff,
+        "active_page": "staff"
+    })
+
+
+def remove_staff(request, user_id, staff_id):
+    business = request.session.get("business_id")
+    assignment = get_object_or_404(StaffAssignment, business_id=business, user_id=staff_id)
+    assignment.delete()
+    messages.success(request, "Staff removed successfully.")
+    return redirect("manage_staff", user_id=user_id)
+
 
 @csrf_exempt
 def create_order(request):
@@ -478,7 +654,6 @@ def create_order(request):
     return JsonResponse({"success": False, "error": "Invalid request method"})
 
 
-from django.views.decorators.http import require_POST
 
 @require_POST
 def update_order_status(request, user_id, order_id):

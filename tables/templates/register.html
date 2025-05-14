@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load socialaccount %}
 {% block title %}Register - Table Tap{% endblock %}
 
 {% block content %}
@@ -28,11 +30,15 @@
       <button type="submit" class="btn btn-primary w-100 rounded-pill">Register</button>
     </form>
 
-    <!-- X Login -->
+    <!-- Google Login -->
     <div class="text-center text-muted my-3">──────── or ────────</div>
     <div class="d-grid gap-2 mb-3">
-      <button class="btn btn-dark rounded-pill w-100"><i class="bi bi-twitter me-2"></i> Sign up with X</button>
+      <a href="{% provider_login_url 'google' %}" class="btn btn-light border rounded-pill w-100 d-flex align-items-center justify-content-center" style="gap: 8px;">
+        <img src="{% static 'images/google.svg' %}" width="20" height="20" alt="Google">
+        <span>Sign up with Google</span>
+      </a>
     </div>
+
 
     <!-- Login Jump -->
     <div class="text-center mt-2 small">

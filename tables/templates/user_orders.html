@@ -15,9 +15,10 @@
       <p><strong>Total:</strong> ${{ order.total_price }}</p>
       <p><strong>Time:</strong> {{ order.ordered_at|date:"Y-m-d H:i" }}</p>
       <a href="{% url 'order_detail' user_id=user_id order_id=order.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
-      {% if order.status == "completed" and not order.has_reviewed %}
-      <a href="{% url 'add_review' user_id=user_id order_id=order.id %}" class="btn btn-outline-success btn-sm">Write Review</a>
+      {% if order.status == "completed" and order.id not in reviewed_order_ids %}
+        <a href="{% url 'add_review' user_id=user_id order_id=order.id %}" class="btn btn-outline-success btn-sm">Write Review</a>
       {% endif %}
+    
     </div>
     
     {% endfor %}

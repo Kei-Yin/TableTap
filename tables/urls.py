@@ -8,6 +8,8 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("register/", views.register, name="register"),
     path("dashboard/<int:user_id>/", views.dashboard_redirect, name="dashboard_redirect"),
+    path('redirect/', views.role_redirect, name='role_redirect'),
+    path("select-role/", views.select_role, name="select_role"),
 
     # === 顾客使用页面（扫码访问 menu 不带 user_id） ===
     path("menu/<int:table_id>/", views.menu, name="menu"),
@@ -20,6 +22,11 @@ urlpatterns = [
     path("customer/<int:user_id>/reviews/", views.reviews, name="reviews"),
     path("customer/<int:user_id>/user/", views.user_center, name="user_center"),
     path("customer/<int:user_id>/order/<int:order_id>/review/", views.add_review, name="add_review"),
+    path("customer/<int:user_id>/reviews/all/", views.all_reviews, name="all_reviews"),
+    path("customer/<int:user_id>/reviews/business/<int:business_id>/", views.business_reviews, name="business_reviews"),
+    path("customer/<int:user_id>/reviews/<int:review_id>/delete/", views.delete_review, name="delete_review"),
+    path("reviews/<int:review_id>/like/", views.like_review, name="like_review"),
+    path("reviews/<int:review_id>/reply/", views.reply_review, name="reply_review"),
 
     # === 后台管理：控制台 / 订单 / 密码 ===
     path("management/<int:user_id>/dashboard/", views.admin_dashboard, name="admin_dashboard"),
@@ -48,4 +55,8 @@ urlpatterns = [
     path("management/<int:user_id>/businesses/add/", views.add_business, name="add_business"),
     path("management/<int:user_id>/businesses/<int:business_id>/edit/", views.edit_business, name="edit_business"),
     path("management/<int:user_id>/businesses/<int:business_id>/use/", views.use_business, name="use_business"),
+
+    path("management/<int:user_id>/staff/", views.manage_staff, name="manage_staff"),
+    path("management/<int:user_id>/staff/<int:staff_id>/remove/", views.remove_staff, name="remove_staff"),
+
 ]
