@@ -9,7 +9,7 @@ class User(models.Model):
     username = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)  # 明文，仅作业使用
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     session_key = models.CharField(max_length=40, null=True, blank=True)
     

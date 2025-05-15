@@ -68,7 +68,7 @@
                 <h6 class="mb-1 fw-bold">{{ item.item_name }}</h6>
                 <p class="text-muted mb-2 small">{{ item.description }}</p>
                 <div class="d-flex justify-content-between align-items-center">
-                  <span class="text-danger fw-bold">¥{{ item.price }}</span>
+                  <span class="text-danger fw-bold">${{ item.price }}</span>
                   <div class="d-flex align-items-center quantity-control" data-id="{{ item.id }}" data-price="{{ item.price }}">
                     <button class="btn btn-sm btn-outline-secondary btn-minus d-none">−</button>
                     <span class="mx-2 quantity d-none">0</span>

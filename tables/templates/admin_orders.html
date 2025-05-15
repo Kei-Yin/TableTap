@@ -14,7 +14,7 @@
       <td>{{ order.id }}</td>
       <td>{{ order.table.table_number }}</td>
       <td>{{ order.get_status_display }}</td>
-      <td>¥{{ order.total_price }}</td>
+      <td>${{ order.total_price }}</td>
       <td>
         {% if order.status == "pending" or order.status == "preparing" %}
         <form method="POST" action="{% url 'update_order_status' user_id order.id %}">

@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
 from django.views.decorators.http import require_POST
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse
 from django.db import models
 import qrcode
 from io import BytesIO
@@ -295,6 +295,10 @@ def delete_review(request, user_id, review_id):
 # ======================= 工具函数 =======================
 
 def get_current_business(request):
+    business_id = request.session.get("business_id")
+    if business_id:
+        return Business.objects.filter(id=business_id).first()
+
     role = request.session.get("role")
     user_id = request.session.get("user_id")
 
